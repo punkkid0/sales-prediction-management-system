@@ -1,0 +1,126 @@
+-- Sales Prediction Management System
+-- Phase 1 database schema
+-- Import into MySQL/MariaDB (phpMyAdmin or mysql CLI)
+
+CREATE DATABASE IF NOT EXISTS sales_prediction_db
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE sales_prediction_db;
+
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS forecasts;
+DROP TABLE IF EXISTS model_runs;
+DROP TABLE IF EXISTS sales;
+DROP TABLE IF EXISTS promotions;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS suppliers;
+DROP TABLE IF EXISTS users;
+SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(160) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'manager', 'staff') NOT NULL DEFAULT 'staff',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE suppliers (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  phone VARCHAR(40) NULL,
+  email VARCHAR(160) NULL,
+  address VARCHAR(255) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE customers (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  phone VARCHAR(40) NULL,
+  email VARCHAR(160) NULL,
+  address VARCHAR(255) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE products (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  category VARCHAR(100) NULL,
+  unit_price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  stock_qty INT NOT NULL DEFAULT 0,
+  reorder_level INT NOT NULL DEFAULT 10,
+  supplier_id INT UNSIGNED NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_products_supplier
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE promotions (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT UNSIGNED NULL COMMENT 'NULL = applies to all products',
+  title VARCHAR(160) NOT NULL,
+  discount_pct DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_promotions_product
+    FOREIGN KEY (product_id) REFERENCES products(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE sales (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT UNSIGNED NOT NULL,
+  customer_id INT UNSIGNED NULL,
+  staff_id INT UNSIGNED NOT NULL,
+  quantity INT NOT NULL,
+  unit_price DECIMAL(12,2) NOT NULL,
+  total DECIMAL(12,2) NOT NULL,
+  sale_date DATE NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_sales_product
+    FOREIGN KEY (product_id) REFERENCES products(id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_sales_customer
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+    ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_sales_staff
+    FOREIGN KEY (staff_id) REFERENCES users(id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  INDEX idx_sales_date (sale_date),
+  INDEX idx_sales_product (product_id)
+) ENGINE=InnoDB;
+
+-- Phase 2/3 tables prepared early
+CREATE TABLE forecasts (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  product_id INT UNSIGNED NOT NULL,
+  forecast_date DATE NOT NULL,
+  predicted_qty DECIMAL(12,2) NOT NULL,
+  model_used VARCHAR(60) NOT NULL,
+  mae DECIMAL(12,4) NULL,
+  rmse DECIMAL(12,4) NULL,
+  horizon_days INT NOT NULL DEFAULT 7,
+  generated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_forecasts_product
+    FOREIGN KEY (product_id) REFERENCES products(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_forecasts_product_date (product_id, forecast_date)
+) ENGINE=InnoDB;
+
+CREATE TABLE model_runs (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  model_name VARCHAR(60) NOT NULL,
+  mae DECIMAL(12,4) NULL,
+  rmse DECIMAL(12,4) NULL,
+  trained_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  notes VARCHAR(255) NULL
+) ENGINE=InnoDB;

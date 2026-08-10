@@ -1,0 +1,109 @@
+:root {
+  --spms-primary: #1f4e79;
+  --spms-accent: #2e75b6;
+  --sidebar-width: 250px;
+}
+
+body {
+  background: #f4f6f9;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--spms-primary), #163a5c);
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 0.4rem;
+  margin-bottom: 0.15rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.sidebar .nav-section {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 0.35rem 0.75rem;
+}
+
+.topbar h1 {
+  color: var(--spms-primary);
+}
+
+.card-stat {
+  border: 0;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.06);
+}
+
+.card-stat .stat-label {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.card-stat .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--spms-primary);
+}
+
+.table thead th {
+  background: #eef3f8;
+  color: #334;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.login-body {
+  background: linear-gradient(135deg, #1f4e79 0%, #2e75b6 50%, #6fa8dc 100%);
+}
+
+.login-card {
+  border: 0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.18);
+}
+
+.badge-low {
+  background: #dc3545;
+}
+
+.receipt-box {
+  max-width: 480px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px dashed #ccc;
+  padding: 1.5rem;
+}
+
+@media print {
+  .sidebar,
+  .topbar,
+  .no-print,
+  footer {
+    display: none !important;
+  }
+  #page-content,
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body {
+    background: #fff;
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "product_id": 13,
+    "skipped": false,
+    "lookback": 30,
+    "models": {
+      "linear_regression": {
+        "model_name": "linear_regression",
+        "product_id": 13,
+        "mae": 0.9465,
+        "rmse": 1.1937
+      },
+      "lstm": {
+        "model_name": "lstm",
+        "backend": "pytorch",
+        "product_id": 13,
+        "mae": 0.8501,
+        "rmse": 1.0798
+      }
+    }
+  }
+]

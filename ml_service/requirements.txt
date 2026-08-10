@@ -1,0 +1,9 @@
+flask>=3.0
+pandas>=2.0
+numpy>=1.26
+scikit-learn>=1.3
+joblib>=1.3
+pymysql>=1.1
+# Optional (better LSTM). Not available on some very new Python versions:
+# torch
+# tensorflow
