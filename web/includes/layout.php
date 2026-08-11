@@ -13,20 +13,24 @@ function render_header(string $title = ''): void
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= e($pageTitle) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="<?= e(base_url('assets/css/app.css')) ?>" rel="stylesheet">
+    <link href="<?= e(base_url('assets/css/app.css')) ?>?v=2" rel="stylesheet">
 </head>
 <body>
+<div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <div class="d-flex" id="wrapper">
-    <nav id="sidebar" class="sidebar text-white">
+    <nav id="sidebar" class="sidebar text-white" aria-label="Main menu">
         <div class="sidebar-brand px-3 py-3">
-            <div class="fw-bold"><?= e($short) ?></div>
-            <small class="text-white-50">Sales &amp; Forecasts</small>
+            <div>
+                <div class="fw-bold"><?= e($short) ?></div>
+                <small class="text-white-50">Sales &amp; Forecasts</small>
+            </div>
+            <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">&times;</button>
         </div>
-        <ul class="nav flex-column px-2">
+        <ul class="nav flex-column px-2 pb-4">
             <li class="nav-item">
                 <a class="nav-link <?= active_page('dashboard') ?>" href="<?= e(url('dashboard')) ?>">
                     <i class="bi bi-speedometer2 me-2"></i>Dashboard
@@ -94,16 +98,19 @@ function render_header(string $title = ''): void
     </nav>
     <div id="page-content" class="flex-grow-1">
         <header class="topbar d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-white">
-            <div>
-                <h1 class="h5 mb-0"><?= e($title !== '' ? $title : 'Dashboard') ?></h1>
+            <div class="d-flex align-items-center gap-2 min-w-0">
+                <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h1 class="h5 mb-0 text-truncate"><?= e($title !== '' ? $title : 'Dashboard') ?></h1>
             </div>
-            <div class="d-flex align-items-center gap-3">
-                <span class="text-muted small">
-                    <?= e($user['name'] ?? '') ?>
-                    <span class="badge text-bg-primary ms-1"><?= e(role_label($user['role'] ?? 'staff')) ?></span>
+            <div class="topbar-user">
+                <span class="text-muted small d-flex align-items-center gap-1">
+                    <span class="user-label"><?= e($user['name'] ?? '') ?></span>
+                    <span class="badge text-bg-primary"><?= e(role_label($user['role'] ?? 'staff')) ?></span>
                 </span>
                 <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('logout')) ?>">
-                    <i class="bi bi-box-arrow-right"></i> Logout
+                    <i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> Logout</span>
                 </a>
             </div>
         </header>
@@ -128,7 +135,7 @@ function render_footer(): void
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="<?= e(base_url('assets/js/app.js')) ?>"></script>
+<script src="<?= e(base_url('assets/js/app.js')) ?>?v=2"></script>
 </body>
 </html>
 <?php
@@ -143,15 +150,15 @@ function render_login_header(string $title = 'Login'): void
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= e($pageTitle) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="<?= e(base_url('assets/css/app.css')) ?>" rel="stylesheet">
+    <link href="<?= e(base_url('assets/css/app.css')) ?>?v=2" rel="stylesheet">
 </head>
 <body class="login-body">
-<div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-md-5 col-lg-4">
+<div class="container-fluid px-2 px-sm-3">
+    <div class="row justify-content-center align-items-center min-vh-100 mx-0">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-4">
             <?php foreach ($flashes as $flash): ?>
                 <div class="alert alert-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
             <?php endforeach; ?>
