@@ -1,6 +1,9 @@
-﻿# Start XAMPP Apache + MySQL (detached)
+# Start XAMPP Apache + MySQL (detached)
 function Start-Detached($cmdLine) {
-  Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmdLine; CurrentDirectory = "C:\xampp" } | Out-Null
+  Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
+    CommandLine = $cmdLine
+    CurrentDirectory = "C:\xampp"
+  } | Out-Null
 }
 if (-not (Get-Process mysqld -ErrorAction SilentlyContinue)) {
   Start-Detached '"C:\xampp\mysql\bin\mysqld.exe" --defaults-file=C:\xampp\mysql\bin\my.ini --standalone'

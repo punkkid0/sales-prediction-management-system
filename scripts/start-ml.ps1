@@ -1,21 +1,24 @@
-# Start SPMS Phase 2 Flask prediction API (detached)
+# Start Flask prediction API (from repo root or scripts/)
+$Root = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path (Join-Path $Root "ml_service\app.py"))) {
+  $Root = $PSScriptRoot
+}
 $python = (Get-Command python -ErrorAction SilentlyContinue).Source
 if (-not $python) { $python = "C:\Users\HP\AppData\Local\Programs\Python\Python314\python.exe" }
-$app = "C:\Users\HP\Desktop\Sales Prediction Management System\ml_service\app.py"
-$dir = "C:\Users\HP\Desktop\Sales Prediction Management System\ml_service"
+$app = Join-Path $Root "ml_service\app.py"
+$dir = Join-Path $Root "ml_service"
 
-# Avoid double-start
 $existing = Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.LocalPort -eq 5000 }
 if ($existing) {
   Write-Host "Something already listening on port 5000."
 } else {
-  $cmd = "`"$python`" `"$app`""
+  $cmd = "`"$python`" -u `"$app`""
   $r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
     CommandLine = $cmd
     CurrentDirectory = $dir
   }
   Write-Host "Started Flask PID=$($r.ProcessId)"
-  Start-Sleep -Seconds 2
+  Start-Sleep -Seconds 3
 }
 
 try {

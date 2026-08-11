@@ -1,33 +1,25 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
 .venv/
 venv/
 .env
-*.egg-info/
-.pytest_cache/
 
-# Local tooling
+# Node (if any)
 node_modules/
-package-lock.json
-package.json
 
 # OS / IDE
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-*.swp
-*~
 
-# Runtime / logs
+# Logs / temp
+*.log
 ml_service/flask_err.txt
 ml_service/flask_out.txt
-*.log
 
-# Personal academic write-up (not part of the software deliverable)
-vincent 123.docx
-
-# Optional: keep build plans tracked; ignore local backups
+# Local junk
 *.bak
+*.docx
+*.pdf
