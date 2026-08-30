@@ -23,3 +23,9 @@ ml_service/flask_out.txt
 *.bak
 *.docx
 *.pdf
+*.jpeg
+*.jpg
+*.png
+WhatsApp*
+ngrok-config.yml
+**/ngrok.yml
