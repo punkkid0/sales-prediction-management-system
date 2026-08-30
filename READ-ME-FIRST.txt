@@ -1,0 +1,39 @@
+Sales Prediction Management System
+=================================
+
+FOR HIM (easy Windows setup)
+----------------------------
+
+1) Install / prepare (ONCE)
+   Double-click:  1-SETUP.bat
+   - Wait until it finishes (can take several minutes)
+   - If it installs Python/XAMPP, allow admin prompts
+   - For public links later: create free ngrok account and save authtoken
+     when the setup (or 3-START-NGROK) asks
+
+2) Every time you want to use the app
+   Double-click:  2-START-SERVERS.bat
+   Then open:     http://localhost/spms/
+
+3) Optional - share a PUBLIC link (PC must stay on)
+   Double-click:  3-START-NGROK.bat
+   Keep that window open
+   Open http://127.0.0.1:4040 and copy the HTTPS URL
+   Send him:  https://xxxxx.ngrok-free.app/spms/
+
+4) When finished
+   Double-click:  STOP-SERVERS.bat
+
+
+Demo logins (password for all: password123)
+-------------------------------------------
+  admin@spms.local
+  manager@spms.local
+  staff1@spms.local
+
+
+Notes
+-----
+- Forecasts need Flask running (started by 2-START-SERVERS.bat).
+- Free ngrok URL can change each time you start it.
+- Code repo: https://github.com/punkkid0/sales-prediction-management-system

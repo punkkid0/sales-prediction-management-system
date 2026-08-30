@@ -2,54 +2,17 @@
 
 PHP/MySQL sales app + Python Flask forecasting (Linear Regression & LSTM).
 
-## Stack
+## Easy Windows start (double-click)
 
-- **Web:** PHP 8, Bootstrap 5, Chart.js  
-- **DB:** MySQL / MariaDB  
-- **ML API:** Flask, scikit-learn, PyTorch  
+| File | What it does |
+|------|----------------|
+| **`1-SETUP.bat`** | First time only: check/install Python packages, XAMPP, import DB, link `/spms`, check ngrok |
+| **`2-START-SERVERS.bat`** | Start MySQL + Apache + Flask, open local login |
+| **`3-START-NGROK.bat`** | Public HTTPS link (PC must stay on; copy URL from http://127.0.0.1:4040) |
+| **`STOP-SERVERS.bat`** | Stop everything |
+| **`READ-ME-FIRST.txt`** | Short instructions for the person running it |
 
-## Setup
-
-### 1. Database
-
-Start MySQL (XAMPP). Import:
-
-1. `database/schema.sql`  
-2. `database/seed.sql`  
-
-Optional longer sales history for ML:
-
-```bash
-cd ml_service
-python generate_seed_sales.py --clear --days 300
-python train.py
-```
-
-### 2. Web app
-
-Start Apache. Point document root / alias at `web/public`  
-(e.g. `http://localhost/spms/`).
-
-DB settings: `web/config/database.php`  
-(default: `root`, empty password, database `sales_prediction_db`)
-
-### 3. Prediction API
-
-```bash
-cd ml_service
-python -m pip install -r requirements.txt
-python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-python app.py
-```
-
-Health: http://127.0.0.1:5000/health  
-
-Windows helper: `scripts/start-ml.ps1`  
-XAMPP helper: `scripts/start-xampp.ps1`
-
-### 4. Open
-
-http://localhost/spms/
+Local app: http://localhost/spms/
 
 | Role | Email | Password |
 |------|--------|----------|
@@ -57,17 +20,35 @@ http://localhost/spms/
 | Manager | `manager@spms.local` | `password123` |
 | Staff | `staff1@spms.local` | `password123` |
 
+## Manual setup (optional)
+
+### Database
+Start MySQL (XAMPP). Import `database/schema.sql` then `database/seed.sql`.
+
+### Web
+Point Apache at `web/public` (setup creates `C:\xampp\htdocs\spms` junction).
+
+### ML API
+```bash
+cd ml_service
+python -m pip install -r requirements.txt
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python app.py
+```
+
 ## Layout
 
 ```
+1-SETUP.bat / 2-START-SERVERS.bat / 3-START-NGROK.bat / STOP-SERVERS.bat
 database/     schema + seed SQL
 web/          PHP app (public/ = web root)
-ml_service/   Flask API + models/
-scripts/      Windows start/stop helpers
+ml_service/   Flask API + trained models/
+scripts/      detailed .bat helpers
 ```
 
 ## Notes
 
-- Forecasts need the Flask API running.  
-- New products need sales history + `python train.py --product <id>` before predict.  
+- Forecasts need Flask running.  
+- New products need sales history + `python train.py --product <id>`.  
 - Trained models in `ml_service/models/` are included for demos.  
+- Free ngrok URL changes when you restart ngrok.  
