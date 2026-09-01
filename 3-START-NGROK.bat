@@ -1,3 +1,4 @@
 @echo off
-REM Double-click AFTER servers are running - creates public link
+REM Public link helper - run AFTER 2-START-SERVERS.bat
+cd /d "%~dp0"
 call "%~dp0scripts\start-ngrok-public.bat"

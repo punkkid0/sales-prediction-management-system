@@ -1,36 +1,47 @@
-# Start public tunnel to local Apache (SPMS at /spms/)
-# Prerequisites: Apache + MySQL + Flask running; ngrok authtoken configured once:
-#   ngrok config add-authtoken YOUR_TOKEN
+# Start ngrok public tunnel to Apache :80
+$env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' +
+            [Environment]::GetEnvironmentVariable('Path','User')
 
-$env:Path = [System.Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path','User')
+$candidates = @(
+  (Get-Command ngrok -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source),
+  "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\Ngrok.Ngrok_Microsoft.Winget.Source_8wekyb3d8bbwe\ngrok.exe",
+  "$env:LOCALAPPDATA\ngrok-bin\ngrok.exe",
+  "$env:ProgramFiles\ngrok\ngrok.exe"
+) | Where-Object { $_ -and (Test-Path $_) }
 
-$ngrok = (Get-Command ngrok -ErrorAction SilentlyContinue).Source
+$ngrok = $candidates | Select-Object -First 1
 if (-not $ngrok) {
-  Write-Host "ngrok not found. Install: winget install Ngrok.Ngrok"
+  $found = Get-ChildItem -Path "$env:LOCALAPPDATA\Microsoft\WinGet\Packages" -Filter ngrok.exe -Recurse -ErrorAction SilentlyContinue |
+    Select-Object -First 1 -ExpandProperty FullName
+  $ngrok = $found
+}
+
+if (-not $ngrok) {
+  Write-Host "ngrok not found. Install: winget install -e --id Ngrok.Ngrok"
   exit 1
 }
 
-# Quick local checks
+Write-Host "Using: $ngrok"
+
 try {
-  $null = Invoke-WebRequest 'http://127.0.0.1/spms/' -UseBasicParsing -TimeoutSec 3
+  Invoke-WebRequest 'http://127.0.0.1/spms/' -UseBasicParsing -TimeoutSec 4 | Out-Null
   Write-Host "Local web OK"
 } catch {
-  Write-Host "WARNING: http://127.0.0.1/spms/ not reachable. Start Apache first (scripts/start-xampp.ps1)."
+  Write-Host "ERROR: http://127.0.0.1/spms/ not up. Run 2-START-SERVERS.bat first."
+  exit 1
 }
 
 try {
-  $null = Invoke-WebRequest 'http://127.0.0.1:5000/health' -UseBasicParsing -TimeoutSec 3
+  Invoke-WebRequest 'http://127.0.0.1:5000/health' -UseBasicParsing -TimeoutSec 4 | Out-Null
   Write-Host "Local Flask OK"
 } catch {
-  Write-Host "WARNING: Flask API not up. Forecasts will fail until you run scripts/start-ml.ps1"
+  Write-Host "WARNING: Flask offline - Forecasts will fail"
 }
 
 Write-Host ""
-Write-Host "Starting ngrok on port 80..."
-Write-Host "After it starts, open http://127.0.0.1:4040 for the public URL."
-Write-Host "Share: https://YOUR-SUBDOMAIN.ngrok-free.app/spms/"
-Write-Host "Keep this window open. PC must stay on."
+Write-Host "Starting ngrok on port 80. Keep this window open."
+Write-Host "Then open http://127.0.0.1:4040 and copy the https URL + /spms/"
 Write-Host ""
 
-# Run in foreground so tunnel stays up
-& ngrok http 80
+Start-Process 'http://127.0.0.1:4040'
+& $ngrok http 80

@@ -239,13 +239,13 @@ echo [INFO] Starting MySQL service...
 if exist "%XAMPP%\mysql\bin\mysqld.exe" (
   start "SPMS-MySQL" /MIN "%XAMPP%\mysql\bin\mysqld.exe" --defaults-file="%XAMPP%\mysql\bin\my.ini" --standalone
 )
-timeout /t 8 /nobreak >nul
+ping -n 9 127.0.0.1 >nul
 
 "%MYSQL%" -u root -h 127.0.0.1 -e "SELECT 1;" >nul 2>&1
 if not errorlevel 1 exit /b 0
 
 REM retry once more
-timeout /t 5 /nobreak >nul
+ping -n 6 127.0.0.1 >nul
 "%MYSQL%" -u root -h 127.0.0.1 -e "SELECT 1;" >nul 2>&1
 if errorlevel 1 exit /b 1
 exit /b 0
