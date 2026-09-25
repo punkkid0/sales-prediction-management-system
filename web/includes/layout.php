@@ -31,15 +31,25 @@ function render_header(string $title = ''): void
             <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">&times;</button>
         </div>
         <ul class="nav flex-column px-2 pb-4">
+            <li class="nav-item mt-1"><span class="nav-section">1. User Management</span></li>
             <li class="nav-item">
                 <a class="nav-link <?= active_page('dashboard') ?>" href="<?= e(url('dashboard')) ?>">
                     <i class="bi bi-speedometer2 me-2"></i>Dashboard
                 </a>
             </li>
+            <?php if (user_can('manage_users')): ?>
+            <li class="nav-item">
+                <a class="nav-link <?= active_page('users') ?>" href="<?= e(url('users')) ?>">
+                    <i class="bi bi-person-gear me-2"></i>Manage Users
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <li class="nav-item mt-2"><span class="nav-section">2. Sales Data</span></li>
             <?php if (user_can('create_sale')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= active_page('sales_new') ?>" href="<?= e(url('sales_new')) ?>">
-                    <i class="bi bi-cart-plus me-2"></i>New Sale
+                    <i class="bi bi-cart-plus me-2"></i>Sales Entry
                 </a>
             </li>
             <li class="nav-item">
@@ -48,7 +58,6 @@ function render_header(string $title = ''): void
                 </a>
             </li>
             <?php endif; ?>
-            <li class="nav-item mt-2"><span class="nav-section">Master data</span></li>
             <li class="nav-item">
                 <a class="nav-link <?= active_page('products') ?>" href="<?= e(url('products')) ?>">
                     <i class="bi bi-box-seam me-2"></i>Products
@@ -73,24 +82,33 @@ function render_header(string $title = ''): void
                 </a>
             </li>
             <?php endif; ?>
+
             <?php if (user_can('view_reports')): ?>
-            <li class="nav-item mt-2"><span class="nav-section">Insights</span></li>
+            <li class="nav-item mt-2"><span class="nav-section">3. Data Processing</span></li>
             <li class="nav-item">
-                <a class="nav-link <?= active_page('reports') ?>" href="<?= e(url('reports')) ?>">
-                    <i class="bi bi-graph-up me-2"></i>Reports
+                <a class="nav-link <?= active_page('processing') ?>" href="<?= e(url('processing')) ?>">
+                    <i class="bi bi-funnel me-2"></i>Clean &amp; Prepare
                 </a>
             </li>
+
+            <li class="nav-item mt-2"><span class="nav-section">4. Forecasting</span></li>
             <li class="nav-item">
                 <a class="nav-link <?= active_page('forecasts') ?>" href="<?= e(url('forecasts')) ?>">
-                    <i class="bi bi-lightning me-2"></i>Forecasts
+                    <i class="bi bi-lightning me-2"></i>Predict &amp; Evaluate
                 </a>
             </li>
-            <?php endif; ?>
-            <?php if (user_can('manage_users')): ?>
-            <li class="nav-item mt-2"><span class="nav-section">Admin</span></li>
+
+            <li class="nav-item mt-2"><span class="nav-section">5. Reports</span></li>
             <li class="nav-item">
-                <a class="nav-link <?= active_page('users') ?>" href="<?= e(url('users')) ?>">
-                    <i class="bi bi-person-gear me-2"></i>Users
+                <a class="nav-link <?= active_page('reports') ?>" href="<?= e(url('reports')) ?>">
+                    <i class="bi bi-graph-up me-2"></i>Charts &amp; Reports
+                </a>
+            </li>
+
+            <li class="nav-item mt-2"><span class="nav-section">6. Decision Support</span></li>
+            <li class="nav-item">
+                <a class="nav-link <?= active_page('decisions') ?>" href="<?= e(url('decisions')) ?>">
+                    <i class="bi bi-lightbulb me-2"></i>Inventory Planning
                 </a>
             </li>
             <?php endif; ?>

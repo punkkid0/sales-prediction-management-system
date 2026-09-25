@@ -11,6 +11,74 @@ $productId = request('product_id') !== null && request('product_id') !== '' ? (i
 $from = trim((string) request('from', ''));
 $to = trim((string) request('to', ''));
 
+if (is_post() && request('action') === 'update_sale') {
+    verify_csrf();
+    $saleId = (int) request('id');
+    $newProduct = (int) request('product_id');
+    $newCustomer = request('customer_id') !== '' ? (int) request('customer_id') : null;
+    $newQty = (int) request('quantity');
+    $newDate = (string) request('sale_date');
+
+    if ($saleId <= 0 || $newProduct <= 0 || $newQty <= 0 || $newDate === '') {
+        flash('danger', 'Product, quantity and date are required to update a sale.');
+        redirect(url('sales'));
+    }
+
+    try {
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare('SELECT * FROM sales WHERE id = ? FOR UPDATE');
+        $stmt->execute([$saleId]);
+        $old = $stmt->fetch();
+        if (!$old) {
+            throw new RuntimeException('Sale not found.');
+        }
+        if (!user_can('view_all_sales') && (int) $old['staff_id'] !== (int) $user['id']) {
+            throw new RuntimeException('You can only update your own sales.');
+        }
+
+        $pdo->prepare('UPDATE products SET stock_qty = stock_qty + ? WHERE id = ?')
+            ->execute([(int) $old['quantity'], (int) $old['product_id']]);
+
+        $stmt = $pdo->prepare('SELECT id, unit_price, stock_qty, is_active FROM products WHERE id = ? FOR UPDATE');
+        $stmt->execute([$newProduct]);
+        $prod = $stmt->fetch();
+        if (!$prod || !(int) $prod['is_active']) {
+            throw new RuntimeException('Product not found or inactive.');
+        }
+        if ((int) $prod['stock_qty'] < $newQty) {
+            throw new RuntimeException('Not enough stock for the new quantity. Available: ' . (int) $prod['stock_qty']);
+        }
+
+        $unit = (float) $prod['unit_price'];
+        $total = $unit * $newQty;
+        $pdo->prepare(
+            'UPDATE sales SET product_id=?, customer_id=?, quantity=?, unit_price=?, total=?, sale_date=? WHERE id=?'
+        )->execute([$newProduct, $newCustomer, $newQty, $unit, $total, $newDate, $saleId]);
+        $pdo->prepare('UPDATE products SET stock_qty = stock_qty - ? WHERE id = ?')
+            ->execute([$newQty, $newProduct]);
+        $pdo->commit();
+        flash('success', 'Sale updated. Stock was adjusted.');
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        flash('danger', $e->getMessage());
+    }
+    redirect(url('sales'));
+}
+
+$editId = (int) request('edit', 0);
+$editSale = null;
+if ($editId > 0) {
+    $stmt = $pdo->prepare('SELECT * FROM sales WHERE id = ?');
+    $stmt->execute([$editId]);
+    $editSale = $stmt->fetch() ?: null;
+    if ($editSale && !user_can('view_all_sales') && (int) $editSale['staff_id'] !== (int) $user['id']) {
+        $editSale = null;
+        flash('danger', 'You cannot edit that sale.');
+    }
+}
+
 $sql = 'SELECT s.*, p.name AS product_name, c.name AS customer_name, u.name AS staff_name
         FROM sales s
         JOIN products p ON p.id = s.product_id
@@ -41,10 +109,57 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $sales = $stmt->fetchAll();
 
-$products = $pdo->query('SELECT id, name FROM products ORDER BY name')->fetchAll();
+$products = $pdo->query('SELECT id, name, unit_price, stock_qty FROM products WHERE is_active = 1 ORDER BY name')->fetchAll();
+$customers = $pdo->query('SELECT id, name FROM customers ORDER BY name')->fetchAll();
 
-render_header('Sales History');
+render_header('Sales Data Management');
 ?>
+<?php if ($editSale): ?>
+<div class="card mb-3">
+    <div class="card-header bg-white fw-semibold">Data update — edit sale #<?= (int) $editSale['id'] ?></div>
+    <div class="card-body">
+        <form method="post" class="row g-2 align-items-end">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="update_sale">
+            <input type="hidden" name="id" value="<?= (int) $editSale['id'] ?>">
+            <div class="col-md-3">
+                <label class="form-label">Product</label>
+                <select name="product_id" class="form-select" required>
+                    <?php foreach ($products as $p): ?>
+                        <option value="<?= (int) $p['id'] ?>" <?= (int) $editSale['product_id'] === (int) $p['id'] ? 'selected' : '' ?>>
+                            <?= e($p['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Customer</label>
+                <select name="customer_id" class="form-select">
+                    <option value="">Walk-in</option>
+                    <?php foreach ($customers as $c): ?>
+                        <option value="<?= (int) $c['id'] ?>" <?= (int) ($editSale['customer_id'] ?? 0) === (int) $c['id'] ? 'selected' : '' ?>>
+                            <?= e($c['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantity</label>
+                <input type="number" min="1" name="quantity" class="form-control" required value="<?= (int) $editSale['quantity'] ?>">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Sale date</label>
+                <input type="date" name="sale_date" class="form-control" required value="<?= e($editSale['sale_date']) ?>">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary">Save update</button>
+                <a class="btn btn-link" href="<?= e(url('sales')) ?>">Cancel</a>
+            </div>
+        </form>
+        <p class="small text-muted mb-0 mt-2">Saving returns the old quantity to stock, then deducts the new quantity. Price is taken from the current product price.</p>
+    </div>
+</div>
+<?php endif; ?>
 <div class="card mb-3">
     <div class="card-body">
         <form method="get" class="row g-2 align-items-end">
@@ -99,7 +214,12 @@ render_header('Sales History');
                     <td><?= e(money((float) $s['unit_price'])) ?></td>
                     <td><?= e(money((float) $s['total'])) ?></td>
                     <td><?= e($s['staff_name']) ?></td>
-                    <td><a href="<?= e(url('receipt', ['id' => $s['id']])) ?>">Receipt</a></td>
+                    <td class="text-nowrap">
+                        <a href="<?= e(url('receipt', ['id' => $s['id']])) ?>">Receipt</a>
+                        <?php if (user_can('view_all_sales') || (int) $s['staff_id'] === (int) $user['id']): ?>
+                            · <a href="<?= e(url('sales', ['edit' => $s['id']])) ?>">Update</a>
+                        <?php endif; ?>
+                    </td>
                 </tr>
             <?php endforeach; endif; ?>
             </tbody>

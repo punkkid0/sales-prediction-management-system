@@ -25,6 +25,8 @@ $routes = [
     'receipt'     => __DIR__ . '/../modules/sales/receipt.php',
     'reports'     => __DIR__ . '/../modules/reports/index.php',
     'forecasts'   => __DIR__ . '/../modules/forecasts/index.php',
+    'processing'  => __DIR__ . '/../modules/processing/index.php',
+    'decisions'   => __DIR__ . '/../modules/decisions/index.php',
 ];
 
 // Public pages

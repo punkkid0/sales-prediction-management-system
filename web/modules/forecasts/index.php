@@ -193,7 +193,31 @@ $modelRuns = $pdo->query(
      LIMIT 8'
 )->fetchAll();
 
-render_header('Forecasts');
+$evalLr = null;
+$evalLstm = null;
+if ($productId > 0) {
+    $stmt = $pdo->prepare(
+        'SELECT model_name, mae, rmse, trained_at
+         FROM model_runs
+         WHERE model_name IN (?, ?)
+         ORDER BY trained_at DESC'
+    );
+    $stmt->execute(["linear_regression_p{$productId}", "lstm_p{$productId}"]);
+    foreach ($stmt->fetchAll() as $row) {
+        if ($row['model_name'] === "linear_regression_p{$productId}" && $evalLr === null) {
+            $evalLr = $row;
+        }
+        if ($row['model_name'] === "lstm_p{$productId}" && $evalLstm === null) {
+            $evalLstm = $row;
+        }
+    }
+}
+$betterModel = null;
+if ($evalLr && $evalLstm) {
+    $betterModel = ((float) $evalLstm['mae'] <= (float) $evalLr['mae']) ? 'LSTM' : 'Linear Regression';
+}
+
+render_header('Sales Prediction & Forecasting');
 ?>
 
 <?php if (!$apiUp): ?>
@@ -347,6 +371,45 @@ render_header('Forecasts');
                 </table>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-white fw-semibold">Model evaluation — Linear Regression vs LSTM</div>
+    <div class="card-body">
+        <?php if (!$evalLr && !$evalLstm): ?>
+            <p class="text-muted mb-0">No evaluation scores yet for this product. Train both models first (admin: Update model).</p>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-sm mb-2">
+                    <thead>
+                    <tr><th>Model</th><th>MAE</th><th>RMSE</th><th>Trained</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Linear Regression</td>
+                        <td><?= $evalLr ? e((string) $evalLr['mae']) : '—' ?></td>
+                        <td><?= $evalLr ? e((string) $evalLr['rmse']) : '—' ?></td>
+                        <td class="small"><?= $evalLr ? e(substr((string) $evalLr['trained_at'], 0, 16)) : '—' ?></td>
+                        <td><?= $betterModel === 'Linear Regression' ? '<span class="badge text-bg-success">Better MAE</span>' : '' ?></td>
+                    </tr>
+                    <tr>
+                        <td>LSTM</td>
+                        <td><?= $evalLstm ? e((string) $evalLstm['mae']) : '—' ?></td>
+                        <td><?= $evalLstm ? e((string) $evalLstm['rmse']) : '—' ?></td>
+                        <td class="small"><?= $evalLstm ? e(substr((string) $evalLstm['trained_at'], 0, 16)) : '—' ?></td>
+                        <td><?= $betterModel === 'LSTM' ? '<span class="badge text-bg-success">Better MAE</span>' : '' ?></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small text-muted mb-0">
+                Lower MAE and RMSE means a more accurate model on the test period.
+                <?php if ($betterModel): ?>
+                    For this product, <strong><?= e($betterModel) ?></strong> has the lower MAE.
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
     </div>
 </div>
 

@@ -65,7 +65,7 @@ if ($export) {
 $chartLabels = array_reverse(array_column($daily, 'sale_date'));
 $chartRevenue = array_reverse(array_map(static fn($r) => (float) $r['revenue'], $daily));
 
-render_header('Reports');
+render_header('Reports & Visualization');
 ?>
 <div class="card mb-3">
     <div class="card-body">
@@ -93,7 +93,7 @@ render_header('Reports');
 <div class="row g-3 mb-4">
     <div class="col-lg-7">
         <div class="card h-100">
-            <div class="card-header bg-white fw-semibold">Daily revenue (selected range)</div>
+            <div class="card-header bg-white fw-semibold">Trends analysis — daily revenue</div>
             <div class="card-body">
                 <canvas id="reportChart" height="130"></canvas>
             </div>
@@ -101,7 +101,7 @@ render_header('Reports');
     </div>
     <div class="col-lg-5">
         <div class="card h-100">
-            <div class="card-header bg-white fw-semibold">Monthly overview (last 12)</div>
+            <div class="card-header bg-white fw-semibold">Performance reports — monthly</div>
             <div class="table-responsive">
                 <table class="table table-sm mb-0">
                     <thead><tr><th>Month</th><th>Txns</th><th>Revenue</th></tr></thead>
@@ -123,7 +123,7 @@ render_header('Reports');
 <div class="row g-3">
     <div class="col-lg-6">
         <div class="card">
-            <div class="card-header bg-white fw-semibold">Daily summary</div>
+            <div class="card-header bg-white fw-semibold">Performance reports — daily summary</div>
             <div class="table-responsive" style="max-height:360px;overflow:auto">
                 <table class="table table-sm mb-0">
                     <thead><tr><th>Date</th><th>Txns</th><th>Units</th><th>Revenue</th></tr></thead>
@@ -145,7 +145,7 @@ render_header('Reports');
     </div>
     <div class="col-lg-6">
         <div class="card">
-            <div class="card-header bg-white fw-semibold">By product</div>
+            <div class="card-header bg-white fw-semibold">Trends analysis — by product</div>
             <div class="table-responsive" style="max-height:360px;overflow:auto">
                 <table class="table table-sm mb-0">
                     <thead><tr><th>Product</th><th>Units</th><th>Revenue</th></tr></thead>
