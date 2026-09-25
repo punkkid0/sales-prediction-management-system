@@ -99,6 +99,9 @@ echo   Logins - password: password123
 echo     manager@spms.local
 echo     admin@spms.local
 echo.
+echo   If Forecasts says the engine is offline, wait 10 seconds
+echo   and refresh the page. Flask can take a moment to load.
+echo.
 echo   Public link next:
 echo     Double-click  3-START-NGROK.bat
 echo ============================================================

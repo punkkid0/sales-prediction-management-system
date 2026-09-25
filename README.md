@@ -46,6 +46,10 @@ ml_service/   Flask API + trained models/
 scripts/      detailed .bat helpers
 ```
 
+## Defense guide
+
+`docs/SPMS_Diagram_Defense_Guide.pdf` explains each block on the supervisor diagram and where it lives in the app.
+
 ## Notes
 
 - Forecasts need Flask running.  

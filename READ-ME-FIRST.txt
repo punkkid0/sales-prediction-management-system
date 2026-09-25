@@ -34,6 +34,10 @@ Demo logins (password for all: password123)
 
 Notes
 -----
-- Forecasts need Flask running (started by 2-START-SERVERS.bat).
+- Forecasts need Flask. 2-START-SERVERS.bat starts it.
+  If Forecasts says the engine is offline, wait about 10 seconds and refresh.
+- This project uses MySQL inside XAMPP. Do NOT install PostgreSQL.
 - Free ngrok URL can change each time you start it.
+- Defense guide (matches the supervisor block diagram):
+  docs/SPMS_Diagram_Defense_Guide.pdf
 - Code repo: https://github.com/punkkid0/sales-prediction-management-system

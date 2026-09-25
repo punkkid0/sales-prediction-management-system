@@ -23,6 +23,7 @@ ml_service/flask_out.txt
 *.bak
 *.docx
 *.pdf
+!docs/SPMS_Diagram_Defense_Guide.pdf
 *.jpeg
 *.jpg
 *.png
